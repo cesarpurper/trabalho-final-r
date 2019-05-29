@@ -69,3 +69,25 @@ ideseTest %>%
   facet_wrap(~bloco, scales = "free_y") 
 
 
+#correlação do bloco educação x idese = 0.8444364
+cor(ideseTest$bloco_educacao, ideseTest$idese)
+
+#correlação do bloco renda x idese = 0.8956826
+cor(ideseTest$bloco_renda, ideseTest$idese)
+
+#correlação do bloco saúde x idese = 0.6263213
+cor(ideseTest$bloco_saude, ideseTest$idese)
+
+
+
+#compração de todos os blocos
+ideseTest %>% 
+  group_by(grupoPop, ano) %>% 
+  summarise_all(mean)%>% 
+  gather(bloco,valor, bloco_educacao, bloco_educacao_ensino_fundamental, bloco_educacao_ensino_fundamental_anos_finais, bloco_educacao_ensino_fundamental_anos_iniciais, bloco_educacao_ensino_medio,bloco_educacao_escolaridade_adulta, bloco_educacao_pre_escola, bloco_saude,bloco_saude_condicoes_gerais_de_saude, bloco_saude_condicoes_gerais_de_saude_obitos_por_causas_evitaveis, bloco_saude_condicoes_gerais_de_saude_obitos_por_causas_mal_definidas,bloco_saude_longevidade, bloco_saude_saude_materno_infantil, bloco_saude_saude_materno_infantil_consultas_pre_natal,bloco_saude_saude_materno_infantil_mortalidade_de_menores_de_5_anos,bloco_renda, bloco_renda_apropriacao_da_renda, bloco_renda_geracao_da_renda, idese) %>% 
+  ggplot(aes(x = ano, valor, color = grupoPop)) +
+  geom_line()+
+  geom_point()+
+  facet_wrap(~bloco, scales = "free_y") 
+
+
