@@ -11,6 +11,7 @@ library(ggplot2)
 library(maptools)
 library(spData)
 library(stringr)
+library(RColorBrewer)
 
 
 mundo = spData::world %>% 
@@ -58,3 +59,28 @@ grouped %>%
   geom_point(aes(color = continent))+
   geom_smooth(se = FALSE, method = lm)+
   facet_wrap(~bloco, scales= "free_y")
+
+##mapa mundi com cores no continente
+
+cor_fator <- colorFactor(palette = sample(col_vector, 6), unique(grouped$continent))
+
+tooltip <- sprintf("<strong>%s</strong><br>", 
+                   grouped$name)
+
+leaflet(grouped) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(fillOpacity = 0,
+              weight      = 0.85,
+              color       = "#000000") %>%
+  
+  addPolygons(color      = ~cor_fator(continent),
+              stroke      = F,
+              weight      = 0.1,
+              fillOpacity = 0.7,
+              popup       = tooltip) %>%
+  addLegend("bottomright",
+            pal    = cor_fator,
+            values = ~continent,
+            title  = "Continente")
+
+
