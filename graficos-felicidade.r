@@ -83,4 +83,37 @@ leaflet(grouped) %>%
             values = ~continent,
             title  = "Continente")
 
+mapa_felicidade_ratio = grouped %>% 
+  filter(!is.na(happiness_score)) %>% 
+  group_by(name) %>% 
+  summarise_all(mean)
+
+pal <- colorNumeric(
+  palette = "Greens",
+  domain = mapa_felicidade_ratio$happiness_score
+)
+
+tooltip <- sprintf("<strong>%s</strong><br>
+                   <p>%s</p>", 
+                   mapa_felicidade_ratio$name, 
+                   mapa_felicidade_ratio$happiness_score)
+
+leaflet(mapa_felicidade_ratio) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(fillOpacity = 0,
+              weight      = 0.85,
+              color       = "#000000") %>%
+  
+  addPolygons(color      = ~pal(happiness_score),
+              stroke      = F,
+              weight      = 0.1,
+              fillOpacity = 0.8,
+              popup       = tooltip) %>%
+  addLegend("bottomright",
+            pal    = pal,
+            values = ~happiness_score,
+            title  = "Felicidade")
+
+
+
 
