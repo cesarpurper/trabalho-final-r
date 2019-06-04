@@ -12,6 +12,10 @@ library(maptools)
 library(spData)
 library(stringr)
 library(RColorBrewer)
+library(DT)
+library(tibble)
+library(broom)
+
 
 
 mundo = spData::world %>% 
@@ -29,8 +33,7 @@ felicidade = read.csv("data/felicidade_mundo.csv", encoding = "UTF-8") %>%
   )%>% 
   mutate(
     name = str_trim(name)
-  ) %>%
-  na.omit()
+  ) 
 
 
 felicidade$name[felicidade$name == 'Côte d\'Ivoire'] = "Ivory Coast"
@@ -56,7 +59,7 @@ grouped %>%
     valor = mean(valor)
   ) %>% 
   ggplot(aes(x = happiness_score, valor)) +
-  geom_point(aes(color = continent))+
+  geom_point()+
   geom_smooth(se = FALSE, method = lm)+
   facet_wrap(~bloco, scales= "free_y")
 
@@ -114,6 +117,27 @@ leaflet(mapa_felicidade_ratio) %>%
             values = ~happiness_score,
             title  = "Felicidade")
 
+tooltip <- c("<br/>Nome : <b>{point.name}</b><br/>
+             <br/>Felicidade : {point.happiness_score}<br/>")
 
 
 
+HCDataset = grouped %>% 
+  mutate(
+    name = paste(name, index_year,sep=" - "),
+    happiness_score = round(happiness_score, digits=2)
+  )%>% 
+  gather(bloco,valor, economic_liberty, government_integrity, judicial_effectiveness, tax_burden, government_spending, fiscal_health, business_freedom, labor_freedom, monetary_freedom, trade_freedom, investment_freedom, financial_freedom) %>% 
+  group_by(name,continent, index_year, bloco,happiness_score,property_rights) %>% 
+  summarise(
+    valor = mean(valor)
+  ) 
+lm.model <- augment(lm(property_rights ~ happiness_score, data = HCDataset))
+
+HCDataset%>%
+  hchart("scatter", hcaes(x = happiness_score, y = property_rights, group = continent)) %>%
+  hc_add_series(lm.model, "line", hcaes(x = happiness_score, y = .fitted), color = "black", enableMouseTracking = FALSE,showInLegend = FALSE) %>% 
+  hc_yAxis(max = 100) %>% 
+  hc_tooltip(pointFormat = tooltip)
+
+               
