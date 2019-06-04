@@ -1,87 +1,14 @@
-#Felicidade Mundo
+#Idese
 #Análise de Cenários
-      # 1 - Relacao dos primeiros colocados de cada critério versus os top 10 happiness_score, 
-      #     será que os primeiros de cada critério são equilibrados e tem o indice geral entre os melhores? 
-      # FALTA: Gerar em única saida a lista de critério com o nome de cada pais.
-
-      # 2 - Relacao dos últimos colocados de cada critério versus os últimos 10 happiness_score, 
-      #     será que os últimos de cada critério são equilibrados e tem o indice geral entre os piores?
-      # FALTA: Gerar em única saida a lista de critério com o nome de cada pais.
-
-      # 3 - Gerar um mapa com os piores e melhores pelo happiness_score vai ficar muito bom visualmente falando.
-
-      # 4 - Entendo que essas listas já englobam a ideia do Domingos para listar melhores e piores.
-
-
-#Cenário 1
-library(dplyr)
-top_1_economic_liberty <- feliz %>% # Hong Kong 0.898
-  select (name, economic_liberty) %>% 
-  arrange(desc(economic_liberty)) %>% 
-  head (1)
-
-top_1_property_rights <- feliz %>% # Singapore	97.1
-  select (name, property_rights) %>% 
-  arrange(desc(property_rights)) %>% 
-  head (1)
-
-top_1_government_integrity <- feliz %>% # Denmark	92 
-  select (name, government_integrity) %>% 
-  arrange(desc(government_integrity)) %>% 
-  head (1)
-
-top_1_judicial_effectiveness <- feliz %>% # United Kingdom	93
-  select (name, judicial_effectiveness) %>% 
-  arrange(desc(judicial_effectiveness)) %>% 
-  head (1)
-
-top_1_tax_burden <- feliz %>% # North Korea Result 0.
-  select (name, tax_burden) %>% 
-  arrange(tax_burden) %>% 
-  head (1)
-
-top_1_tax_government_spending <- feliz %>% # Cuba	0 ???????????????????????? Acho que a pesquisa não teve acesso as infos...rss
-  select (name, government_spending) %>% 
-  arrange(government_spending) %>% 
-  head (1)
-
-top_1_tax_fiscal_health <- feliz %>%  # Brunei Darussalam	100
-  select (name, fiscal_health) %>% 
-  arrange(desc(fiscal_health)) %>% 
-  head (1)
-
-top_1_tax_business_freedom <- feliz %>% # Hong Kong	100
-  select (name, business_freedom) %>% 
-  arrange(desc(business_freedom)) %>% 
-  head (1)
-
-top_1_tax_labor_freedom <- feliz %>%  # United States	98.5
-  select (name, labor_freedom) %>% 
-  arrange(desc(labor_freedom)) %>% 
-  head (1)
-
-top_1_tax_monetary_freedom <- feliz %>% # Hungary 	91.7
-  select (name, monetary_freedom) %>% 
-  arrange(desc(monetary_freedom)) %>% 
-  head (1)
-
-top_1_tax_trade_freedom <- feliz %>% # Hong Kong	90
-  select (name, trade_freedom) %>% 
-  arrange(desc(trade_freedom)) %>% 
-  head (1)
-
-top_1_tax_investment_freedom <- feliz %>% # Luxembourg	95
-  select (name, investment_freedom) %>% 
-  arrange(desc(investment_freedom)) %>% 
-  head (1)
-
-top_1_tax_financial_freedom <- feliz %>% # Australia	90
-  select (name, financial_freedom) %>% 
-  arrange(desc(financial_freedom)) %>% 
-  head (1)
-
-top_10_tax_happiness_score <- feliz %>% 
-  select (name, happiness_score) %>% 
-  arrange(desc(happiness_score)) %>% 
-  distinct(name) %>% 
-  head (10)
+      # Analises conclusivas 
+            # 1 - Cidades que mais evoluiram
+            # 2 - Cidades que mais regrediram
+            # 3 - Facet Wrap por blocos com os que mais evoluiram e pioraram
+            # 4 - Percentil de cidades por população para chegar na relação de pequenas, médias e grandes.
+            # 5 - Gerar um mapa de calor pelo idese, vai ficar muito bom visualmente.
+            # 6 - 
+      
+      # Analises não conclusivas
+            # 1 - População versus Idese
+            # 2 - 
+      
