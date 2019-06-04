@@ -117,10 +117,11 @@ leaflet(mapa_felicidade_ratio) %>%
             values = ~happiness_score,
             title  = "Felicidade")
 
+
+
+#Scatterplot com highchart property-rights x felicidade
 tooltip <- c("<br/>Nome : <b>{point.name}</b><br/>
              <br/>Felicidade : {point.happiness_score}<br/>")
-
-
 
 HCDataset = grouped %>% 
   mutate(
