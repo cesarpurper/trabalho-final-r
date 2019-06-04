@@ -22,7 +22,30 @@ ideseTest = idese %>%
   na.omit() 
 
   #divisao dos quartis da populacao
-quantile(ideseTest$populacao,probs = seq(0, 1, 0.25), na.rm = FALSE)
+table = data.frame(quantile(ideseTest$populacao,probs = seq(0, 1, 0.25), na.rm = FALSE)) %>% 
+  rownames_to_column(var = "perc") 
+colnames(table)[2] = "valor"
+
+table = table %>% 
+  mutate(
+    valor = as.integer(valor)
+  ) %>% 
+  spread(perc, valor) 
+table = table[,c(1,3,4,5,2)]
+
+table %>% 
+  datatable(
+    colnames = c('Mínimo', '1º quartil', 'Mediana', '2º quartil',   'Máximo'),
+    rownames = F,
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")), # centralizando colunas
+      bPaginate = FALSE,
+      bInfo = FALSE,
+      bFilter = FALSE,
+      bSort = FALSE
+    )
+  )
+
 
 
 #comparacao dos blocos por tamanho de cidade
