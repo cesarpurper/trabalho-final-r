@@ -63,28 +63,7 @@ grouped %>%
   geom_smooth(se = FALSE, method = lm)+
   facet_wrap(~bloco, scales= "free_y")
 
-##mapa mundi com cores no continente
-
-cor_fator <- colorFactor(palette = sample(col_vector, 6), unique(grouped$continent))
-
-tooltip <- sprintf("<strong>%s</strong><br>", 
-                   grouped$name)
-
-leaflet(grouped) %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  addPolygons(fillOpacity = 0,
-              weight      = 0.85,
-              color       = "#000000") %>%
-  
-  addPolygons(color      = ~cor_fator(continent),
-              stroke      = F,
-              weight      = 0.1,
-              fillOpacity = 0.7,
-              popup       = tooltip) %>%
-  addLegend("bottomright",
-            pal    = cor_fator,
-            values = ~continent,
-            title  = "Continente")
+##mapa mundi com cores por felicidade
 
 mapa_felicidade_ratio = grouped %>% 
   filter(!is.na(happiness_score)) %>% 
@@ -118,8 +97,8 @@ leaflet(mapa_felicidade_ratio) %>%
             title  = "Felicidade")
 
 
+##grid com os gráficos do highchart
 
-#Scatterplot com highchart property-rights x felicidade
 tooltip <- c("<br/>Nome : <b>{point.name}</b><br/>
              <br/>Felicidade : {point.happiness_score}<br/>")
 
@@ -127,18 +106,40 @@ HCDataset = grouped %>%
   mutate(
     name = paste(name, index_year,sep=" - "),
     happiness_score = round(happiness_score, digits=2)
-  )%>% 
-  gather(bloco,valor, economic_liberty, government_integrity, judicial_effectiveness, tax_burden, government_spending, fiscal_health, business_freedom, labor_freedom, monetary_freedom, trade_freedom, investment_freedom, financial_freedom) %>% 
-  group_by(name,continent, index_year, bloco,happiness_score,property_rights) %>% 
-  summarise(
-    valor = mean(valor)
-  ) 
-lm.model <- augment(lm(property_rights ~ happiness_score, data = HCDataset))
+  )
 
-HCDataset%>%
+lm.model.property <- augment(lm(property_rights ~ happiness_score, data = HCDataset))
+
+HC_propertyRights = HCDataset%>%
   hchart("scatter", hcaes(x = happiness_score, y = property_rights, group = continent)) %>%
-  hc_add_series(lm.model, "line", hcaes(x = happiness_score, y = .fitted), color = "black", enableMouseTracking = FALSE,showInLegend = FALSE) %>% 
+  hc_add_series(lm.model.property, "line", hcaes(x = happiness_score, y = .fitted), color = "black", enableMouseTracking = FALSE,showInLegend = FALSE) %>% 
   hc_yAxis(max = 100) %>% 
   hc_tooltip(pointFormat = tooltip)
+
+
+lm.model.business_freedom <- augment(lm(business_freedom ~ happiness_score, data = HCDataset))
+HC_businessFreedom = HCDataset%>%
+  hchart("scatter", hcaes(x = happiness_score, y = business_freedom, group = continent)) %>%
+  hc_add_series(lm.model.business_freedom, "line", hcaes(x = happiness_score, y = .fitted), color = "black", enableMouseTracking = FALSE,showInLegend = FALSE) %>% 
+  hc_yAxis(max = 100) %>% 
+  hc_tooltip(pointFormat = tooltip)
+
+lm.model.government_spending <- augment(lm(government_spending ~ happiness_score, data = HCDataset))
+HC_govSpending = HCDataset%>%
+  hchart("scatter", hcaes(x = happiness_score, y = government_spending, group = continent)) %>%
+  hc_add_series(lm.model.government_spending, "line", hcaes(x = happiness_score, y = .fitted), color = "black", enableMouseTracking = FALSE,showInLegend = FALSE) %>% 
+  hc_yAxis(max = 100) %>% 
+  hc_tooltip(pointFormat = tooltip)
+
+lm.model.government_integrity <- augment(lm(government_integrity ~ happiness_score, data = HCDataset))
+HC_govIntegrity = HCDataset%>%
+  hchart("scatter", hcaes(x = happiness_score, y = government_integrity, group = continent)) %>%
+  hc_add_series(lm.model.government_integrity, "line", hcaes(x = happiness_score, y = .fitted), color = "black", enableMouseTracking = FALSE,showInLegend = FALSE) %>% 
+  hc_yAxis(max = 100) %>% 
+  hc_tooltip(pointFormat = tooltip)
+
+lst <- list(HC_propertyRights,HC_businessFreedom,HC_govIntegrity,HC_govSpending)
+hw_grid(lst, rowheight = 300,ncol = 2)
+           
 
                
