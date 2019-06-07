@@ -1,0 +1,167 @@
+---
+title: "TrabalhoFinal_Idese"
+author: "Alexandre - Cesar - Domingos"
+date: "30 de maio de 2019"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: "cosmo"
+    highlight: "haddock"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE, fig.align='center')
+
+library(dplyr)
+library(leaflet)
+library(sf)
+#library(mapsBR)
+library(sp)
+library(rgeos)
+library(rgdal)
+library(janitor)
+library(highcharter)
+library(tidyr)
+library(ggplot2)
+
+idese = readRDS("data/Idese Municipios 2007-2014.rds") %>% 
+  clean_names()
+
+options(scipen = 999)
+ideseTest = idese %>% 
+  #filter(cod != "4314548") %>% 
+  mutate(
+    grupoPop = ifelse(populacao<2979, "Pequena", ifelse(populacao<14732, "Média", "Grande"))
+  )%>% 
+  na.omit()
+
+```
+
+>**Quais são as cidades mais prósperas para viver?**
+<center>
+</br>
+![](imagens/imagem_capa_2.jpg)
+</center>
+
+</br>
+
+
+#**1 - Entendendo o cenário**#
+
+Percebemos que a melhor forma de identificar comportamentos através das informações da base Idese foi utilizando a população para comparar cidades, antes disso qualquer análise foi inconclusiva.
+
+
+##Cidades vs População##
+
+Delimitamos cidades através de quartis por população.
+```{r}
+quantile(ideseTest$populacao,probs = seq(0, 1, 0.25), na.rm = FALSE)
+```
+
+<center>
+![](imagens/imagem_quartil.png)
+</center>
+</br>
+* Considerar a divisão acima para as próximas análises.
+
+
+##Cidades vs População - Mapa##
+**TODO Incluir Mapa**
+
+
+>**Bonito esse mapa hein... Mas ainda não nos diz qual seria um bom lugar para prosperar.**
+
+
+#**2 - Entendendo os blocos**#
+
+Esta é a primeira visão comparativa de Blocos, de forma macro podemos perceber que: </br>
+</br>
+**- Saúde :** Sempre foi melhor nas cidades pequenas </br>
+</br>
+**- Educação :** Nos primeiros anos as cidades médias eram inferiores, mas praticamente se igualaram com o passar dos anos. </br>
+</br>
+**- Renda :** Algo aconteceu com as cidades pequenas, principalmente de 2012 para 2013. </br>
+
+```{r}
+#comparacao dos blocos por tamanho de cidade
+ideseTest %>% 
+  group_by(grupoPop, ano) %>% 
+  summarise_all(mean)%>% 
+  gather(bloco,valor, bloco_saude,bloco_educacao, bloco_renda, idese) %>% 
+  ggplot(aes(x = ano, valor, color = grupoPop)) +
+  geom_line()+
+  geom_point()+
+  facet_wrap(~bloco, scales = "free_y")
+```
+</br>
+
+##Educação##
+
+**- Escolaridade Adulta :** Neste quesito podemos ver claramente como as cidades grandes são mais desenvolvidas, verificamos que isso se dá pelo fato das melhores universidades ficarem nas capitais. </br>
+</br>
+**- Ensino Fundamental e Anos Iniciais :** É praticamente nula diferença nestes quesitos, o que gerou certa curiosidade foram os "degrais" por ano, o que teria sido considerado ou feito nesses anos por parte de todos os estados, pode ser por exemplo, programas federais que deram certo e claro, foram aplicados para todos. </br>
+</br>
+**- Escolaridade Adulta :** O comportamento mais dúvidoso, o que talvez poderia nos levar a analisar a qualidade dos dados, se dá no ensino fundamental nos anos finais, do ano 2008 para 2009 o salto na qualidade foi muito fora de qualquer média. </br>
+
+```{r}
+#compração do bloco educacao por tamanho de cidade
+ideseTest %>% 
+  group_by(grupoPop, ano) %>% 
+  summarise_all(mean)%>% 
+  gather(bloco,valor, bloco_educacao, bloco_educacao_ensino_fundamental, bloco_educacao_ensino_fundamental_anos_finais, bloco_educacao_ensino_fundamental_anos_iniciais, bloco_educacao_ensino_medio,bloco_educacao_escolaridade_adulta, bloco_educacao_pre_escola, idese) %>% 
+  ggplot(aes(x = ano, valor, color = grupoPop)) +
+  geom_line()+
+  geom_point()+
+  facet_wrap(~bloco, scales = "free_y") 
+```
+</br>
+
+##Saúde##
+
+**- Indice Geral :** Todas as cidades possuem nível de saúde entre 0.73 e 0.76, mas um fato que não pode ser negado é que cidades pequenas estão em todos quesitos no topo, exceto na mortalidade infantil para menores de 5 anos ser melhor em cidades médias, deixando as pequenas e grandes em igualdade.</br>
+</br>
+
+```{r}
+#compração do bloco saude por tamanho de cidade
+ideseTest %>% 
+  group_by(grupoPop, ano) %>% 
+  summarise_all(mean)%>% 
+  gather(bloco,valor, bloco_saude,bloco_saude_condicoes_gerais_de_saude, bloco_saude_condicoes_gerais_de_saude_obitos_por_causas_evitaveis, bloco_saude_condicoes_gerais_de_saude_obitos_por_causas_mal_definidas,bloco_saude_longevidade, bloco_saude_saude_materno_infantil, bloco_saude_saude_materno_infantil_consultas_pre_natal,bloco_saude_saude_materno_infantil_mortalidade_de_menores_de_5_anos, idese) %>% 
+  ggplot(aes(x = ano, valor, color = grupoPop)) +
+  geom_line()+
+  geom_point()+
+  facet_wrap(~bloco, scales = "free_y") 
+```
+</br>
+
+##Renda##
+
+**- Indice Geral :** As cidades pequenas superaram as cidades grandes no ano de 2012, muito em função do incentivo federal na produção agricola, que até então sempre se mantinham em nível inferior. O quesito específico foi geração de renda, crescendo duas vezes mais que nos anos anteriores.</br>
+</br>
+
+
+```{r}
+#compração do bloco renda por tamanho de cidade
+ideseTest %>% 
+  group_by(grupoPop, ano) %>% 
+  summarise_all(mean)%>% 
+  gather(bloco,valor, bloco_renda, bloco_renda_apropriacao_da_renda, bloco_renda_geracao_da_renda, idese) %>% 
+  ggplot(aes(x = ano, valor, color = grupoPop)) +
+  geom_line()+
+  geom_point()+
+  facet_wrap(~bloco, scales = "free_y") 
+```
+
+</br>
+
+
+#**3 - Afinal, onde prosperar?**#
+
+Pois bem, excelente pergunta!
+
+Com base nos dados analisados temos convicção que viver em cidades pequenas é melhor, mas não somente nestas.
+Durante parte da vida adulta será necessário investir na educação em alguma cidade grande pelos níveis serem quase o dobro.
+A diferença de renda é baixa, sendo em alguns momentos igual.
+Se o foco for saúde, não existe melhor opção do que as cidades pequenas, todos os indices são melhores.
+
